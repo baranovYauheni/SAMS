@@ -31,7 +31,7 @@ The data schema (`Service_Appointment__c`), all core fields, and the basic restr
 
 ## 2.1. LWC Components
 
-The following Lightning Web Components (LWC) have been created and planned for the Service Appointment Management System:
+The following Lightning Web Components (LWC) have been created for the Service Appointment Management System:
 
 ### 1. `appointmentBookingForm`
 **Purpose:** A form to create new `Service_Appointment__c` records.
@@ -39,18 +39,8 @@ The following Lightning Web Components (LWC) have been created and planned for t
 - **Universal Placement:** Designed to be placed on App Pages, Home Pages, Utility Bar, and Contact Record Pages.
 - **Context Awareness:** Automatically pre-fills and locks the `Customer__c` field if placed on a Contact Record Page. If placed elsewhere, allows manual selection of a customer.
 - **Data Entry & Validation:** Uses standard `lightning-record-edit-form` to capture Agent, Date/Time, Status, and Description, automatically leveraging Salesforce's built-in field validation.
-- **User Feedback:** Displays a success toast notification upon record creation and resets the form for the next entry (while keeping the pre-filled context if applicable).
 
 ### 2. `agentScheduleTable`
-**Purpose:** Displays and manages appointments for a selected Service Agent.
+**Purpose:** Skeleton component created for displaying and managing appointments for a selected Service Agent.
 **Features:**
-- **Data Table:** Shows scheduled appointments (Customer Name, Date/Time, Status, Description) in a `lightning-datatable`.
-- **Filtering:** Includes functionality to filter appointments by Date range and Status.
-- **Inline Editing:** Allows agents from the UI to quickly update the 'Status' or 'Date/Time' directly within the table interface.
-
-### 3. `customerAppointmentList` (Planned)
-**Purpose:** Displays a list of all appointments for a specific customer.
-**Features:**
-- **Contextual View:** Automatically pulls the `recordId` from the Contact Record Page to fetch and filter appointments.
-- **Sorting:** Allows sorting the list of appointments by Date.
-- **Quick Actions:** Includes a "Cancel" button to quickly change the status of an appointment to 'Cancelled' without reloading the page.
+- Component bundle initialized and exposed to App Pages, Record Pages, Home Pages, and Utility Bar.
