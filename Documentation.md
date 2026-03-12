@@ -28,3 +28,19 @@ All required fields have been successfully created with the correct data types:
 
 ### Conclusion
 The data schema (`Service_Appointment__c`), all core fields, and the basic restricted access model (OWD Private) are configured in full compliance with the requirements. Regarding Sharing Rules, it is recommended to ensure that the current Role Hierarchy is sufficient for the business logic of managers' data visibility, as explicit `SharingRules` are not currently present in the metadata.
+
+## 2.1. LWC Components
+
+The following Lightning Web Components (LWC) have been created for the Service Appointment Management System:
+
+### 1. `appointmentBookingForm`
+**Purpose:** A form to create new `Service_Appointment__c` records.
+**Features:**
+- **Universal Placement:** Designed to be placed on App Pages, Home Pages, Utility Bar, and Contact Record Pages.
+- **Context Awareness:** Automatically pre-fills and locks the `Customer__c` field if placed on a Contact Record Page. If placed elsewhere, allows manual selection of a customer.
+- **Data Entry & Validation:** Uses standard `lightning-record-edit-form` to capture Agent, Date/Time, Status, and Description, automatically leveraging Salesforce's built-in field validation.
+
+### 2. `agentScheduleTable`
+**Purpose:** Skeleton component created for displaying and managing appointments for a selected Service Agent.
+**Features:**
+- Component bundle initialized and exposed to App Pages, Record Pages, Home Pages, and Utility Bar.
