@@ -1,0 +1,129 @@
+<template>
+    <lightning-card title="Agent Schedule Table" icon-name="standard:service_appointment">
+
+        <!-- Filters Area -->
+        <div class="slds-p-horizontal_medium slds-m-bottom_medium">
+            <div class="slds-grid slds-wrap slds-gutters">
+
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
+                    <lightning-combobox
+                        label="Select Service Agent"
+                        value={selectedAgentId}
+                        placeholder="Choose an Agent"
+                        options={agentOptions}
+                        onchange={handleAgentChange}
+                        required>
+                    </lightning-combobox>
+                </div>
+
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
+                    <lightning-combobox
+                        label="Status Filter"
+                        value={selectedStatus}
+                        placeholder="All"
+                        options={statusFilterOptions}
+                        onchange={handleStatusChange}>
+                    </lightning-combobox>
+                </div>
+
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
+                    <lightning-input type="date" label="Start Date" value={startDate} onchange={handleStartDateChange}>
+                    </lightning-input>
+                </div>
+
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
+                    <lightning-input type="date" label="End Date" value={endDate} onchange={handleEndDateChange}>
+                    </lightning-input>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Save / Cancel Bar — appears only when there are pending edits -->
+        <template if:true={hasPendingChanges}>
+            <div style="display:flex; align-items:center; justify-content:space-between; padding: 10px 16px; background:#f3f2f2; border-top: 2px solid #0176d3; border-bottom: 1px solid #dddbda;">
+                <span style="font-weight:600; color:#181818; font-size:0.875rem;">
+                    ✏️ &nbsp; You have unsaved changes — review before saving.
+                </span>
+                <div style="display:flex; gap:8px;">
+                    <lightning-button
+                        variant="neutral"
+                        label="Discard"
+                        onclick={handleCancelChanges}>
+                    </lightning-button>
+                    <lightning-button
+                        variant="brand"
+                        label="Save All Changes"
+                        onclick={handleSaveAll}>
+                    </lightning-button>
+                </div>
+            </div>
+        </template>
+
+        <!-- Table Area -->
+        <div class="slds-p-horizontal_medium slds-m-top_small">
+            <template if:true={appointments.length}>
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered slds-table_striped">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th scope="col" style="width:22%"><div class="slds-truncate">Customer</div></th>
+                            <th scope="col" style="width:28%"><div class="slds-truncate">Date / Time</div></th>
+                            <th scope="col" style="width:20%"><div class="slds-truncate">Status</div></th>
+                            <th scope="col"><div class="slds-truncate">Description</div></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={appointments} for:item="row">
+                            <tr key={row.Id}>
+
+                                <!-- Customer (read-only) -->
+                                <td>
+                                    <div class="slds-truncate slds-p-vertical_xx-small">{row.customerName}</div>
+                                </td>
+
+                                <!-- Date/Time — editable datetime-local input -->
+                                <td>
+                                    <lightning-input
+                                        type="datetime-local"
+                                        label=""
+                                        value={row.dateInputValue}
+                                        data-id={row.Id}
+                                        onchange={handleDateCellChange}
+                                        variant="label-hidden"
+                                        class="slds-size_full">
+                                    </lightning-input>
+                                </td>
+
+                                <!-- Status — editable combobox -->
+                                <td>
+                                    <lightning-combobox
+                                        label=""
+                                        value={row.Status__c}
+                                        options={statusOptions}
+                                        data-id={row.Id}
+                                        onchange={handleStatusCellChange}
+                                        variant="label-hidden"
+                                        class="slds-size_full">
+                                    </lightning-combobox>
+                                </td>
+
+                                <!-- Description (read-only) -->
+                                <td>
+                                    <div class="slds-truncate slds-p-vertical_xx-small">{row.Description__c}</div>
+                                </td>
+
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </template>
+
+            <template if:false={appointments.length}>
+                <div class="slds-text-align_center slds-p-around_large slds-text-color_weak">
+                    <p>No appointments found. Please select an agent or adjust the filters.</p>
+                </div>
+            </template>
+        </div>
+
+    </lightning-card>
+</template>

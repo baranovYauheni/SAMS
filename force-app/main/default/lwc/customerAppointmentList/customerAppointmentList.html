@@ -1,0 +1,69 @@
+<template>
+    <lightning-card title="Appointment History" icon-name="standard:service_appointment">
+
+        <div slot="actions">
+            <lightning-button variant="neutral" label={sortLabel} icon-name={sortIconName} icon-position="left"
+                onclick={handleToggleSort}>
+            </lightning-button>
+        </div>
+
+        <template if:true={isLoading}>
+            <div class="slds-p-around_medium slds-text-align_center">
+                <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <template if:true={appointments.length}>
+                <ul class="slds-has-dividers_bottom-space slds-m-around_none">
+                    <template for:each={appointments} for:item="appt">
+                        <li key={appt.Id} class="slds-item slds-p-around_small"
+                            style="list-style:none; border-bottom: 1px solid #e5e5e5;">
+
+                            <div style="margin-bottom:4px;">
+                                <a href={appt.recordUrl} target="_self"
+                                    style="font-size:0.875rem; font-weight:600; color:#0176d3; text-decoration:none;">
+                                    {appt.Name}
+                                </a>
+                            </div>
+
+                            <div
+                                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                <span style="font-size:0.8125rem; color:#181818;">
+                                    🗓 {appt.formattedDate}
+                                </span>
+                                <span class={appt.statusClass}>{appt.Status__c}</span>
+                            </div>
+
+                            <div style="font-size:0.75rem; color:#444; margin-bottom:4px;">
+                                👤 {appt.agentName}
+                            </div>
+
+                            <template if:true={appt.Description__c}>
+                                <div style="font-size:0.75rem; color:#666; margin-bottom:6px; font-style:italic;">
+                                    {appt.Description__c}
+                                </div>
+                            </template>
+
+                            <template if:true={appt.isCancellable}>
+                                <div style="text-align:right;">
+                                    <lightning-button variant="destructive-text" label="Cancel Appointment"
+                                        data-id={appt.Id} onclick={handleCancel} size="small">
+                                    </lightning-button>
+                                </div>
+                            </template>
+
+                        </li>
+                    </template>
+                </ul>
+            </template>
+
+            <template if:true={isEmpty}>
+                <div class="slds-text-align_center slds-p-around_large slds-text-color_weak">
+                    <p>No appointments found for this customer.</p>
+                </div>
+            </template>
+        </template>
+
+    </lightning-card>
+</template>
