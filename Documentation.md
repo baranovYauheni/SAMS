@@ -41,6 +41,70 @@ The following Lightning Web Components (LWC) have been created for the Service A
 - **Data Entry & Validation:** Uses standard `lightning-record-edit-form` to capture Agent, Date/Time, Status, and Description, automatically leveraging Salesforce's built-in field validation.
 
 ### 2. `agentScheduleTable`
-**Purpose:** Skeleton component created for displaying and managing appointments for a selected Service Agent.
+**Purpose:** A table for displaying and managing appointments for a selected Service Agent.
 **Features:**
-- Component bundle initialized and exposed to App Pages, Record Pages, Home Pages, and Utility Bar.
+- Agent selector with dynamic filtering by status and date range.
+- Inline editing of `Status__c` via a custom picklist cell (`customPicklistCell` sub-component).
+- Inline editing of `Appointment_Date_Time__c`.
+- Bulk save via `AgentScheduleController.updateAppointments()`.
+
+### 3. `customerAppointmentList`
+**Purpose:** A list of all `Service_Appointment__c` records for a selected Contact displayed on the Contact Record Page.
+**Features:**
+- Automatic loading of appointments for the current Contact via `CustomerAppointmentController.getAppointmentsForCustomer()`.
+- Sort toggle (Ascending / Descending) by `Appointment_Date_Time__c`.
+- Multi-select cancel action via `CustomerAppointmentController.cancelAppointments()`.
+
+---
+
+## 2.3. Asynchronous Processes — Platform Event
+
+### Platform Event: `Change_Service_Appointment__e`
+**Purpose:** Publishes a message whenever the `Status__c` field of a `Service_Appointment__c` record changes.
+
+**Fields:**
+| Field | Type | Description |
+|---|---|---|
+| `Appointment_Id__c` | Text | ID of the changed appointment |
+| `Old_status__c` | Text | Previous status value |
+| `New_Status__c` | Text | New status value |
+| `Changed_by_Id__c` | Text | ID of the user who made the change |
+| `Changed_on__c` | DateTime | Timestamp of the change |
+
+### Event Flow
+```
+Service_Appointment__c (after update)
+  → ServiceAppointmentTrigger
+  → ServiceAppointmentTriggerHandler.onAfterUpdate()
+  → EventBus.publish(Change_Service_Appointment__e)
+  → AppointmentStatusChangedTrigger (after insert)
+  → AppointmentStatusChangedTriggerHandler.onAfterInsert()
+  → INSERT Appointment_Status_Log__c
+```
+
+### Log Object: `Appointment_Status_Log__c`
+Stores a history record for every status change:
+- `Service_Appointment__c` — Lookup to the changed record
+- `Old_Status__c` — Previous status
+- `New_Status__c` — New status
+- `Changed_by__c` — Lookup to User who triggered the change
+- `Date_Changes__c` — DateTime of the change
+
+---
+
+## 2.6. Triggers
+
+### `ServiceAppointmentTrigger`
+- **Object:** `Service_Appointment__c`
+- **Events:** `after update`
+- **Handler:** `ServiceAppointmentTriggerHandler`
+- **Logic:** Detects `Status__c` changes and publishes `Change_Service_Appointment__e` Platform Events in bulk.
+- **Bulk-safe:** Collects all events in a `List` before calling `EventBus.publish()` — no DML inside loops.
+- **Security:** Handler class uses `with sharing` to respect record-level access.
+
+### `AppointmentStatusChangedTrigger`
+- **Object:** `Change_Service_Appointment__e` (Platform Event)
+- **Events:** `after insert`
+- **Handler:** `AppointmentStatusChangedTriggerHandler`
+- **Logic:** For each received event, creates an `Appointment_Status_Log__c` record.
+- **Bulk-safe:** Collects log records in a `List` before a single `insert` DML call.
