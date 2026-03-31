@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>Active_Appointments__c</fullName>
+        <description>Count of active (New or Confirmed) Service Appointments for this Contact. Maintained by the Update_Active_Appointments_Count After-Save Flow.</description>
+        <externalId>false</externalId>
+        <label>Active Appointments</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Number</type>
+    </fields>
+</CustomObject>

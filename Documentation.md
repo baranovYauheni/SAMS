@@ -57,7 +57,53 @@ The following Lightning Web Components (LWC) have been created for the Service A
 
 ---
 
+## 2.4. Flows
+
+### Subflow: `Check_Contact_Exists`
+**Type:** AutoLaunched Flow  
+**Purpose:** Checks whether a Contact with a given Id exists in Salesforce. Used as a subflow by `Appointment_Booking_Flow`.
+
+| Variable | Direction | Description |
+|---|---|---|
+| `contactId` | Input | Id of the Contact to verify |
+| `contactExists` | Output | `true` if found, `false` otherwise |
+| `contactName` | Output | Full name of the Contact (if found) |
+
+**Logic:** Get Records on Contact by Id → Set output variables. If fault → `contactExists = false`.
+
+---
+
+### Screen Flow: `Appointment_Booking_Flow`
+**Type:** Screen Flow  
+**Purpose:** Guides users through creating a Service Appointment with built-in validation.
+
+**Steps:**
+1. **Input Screen** — collects Customer (Contact Id), Agent (User Id), Date & Time, Description
+2. **Subflow** — calls `Check_Contact_Exists` to verify the contact
+3. **Error Screen: Contact Not Found** — shown if contact doesn't exist (user can go back)
+4. **Get Records** — queries `Service_Appointment__c` for same agent + same date/time (active status)
+5. **Decision: Conflict?** — checks if conflicting records found
+6. **Error Screen: Scheduling Conflict** — shown if conflict found (Error Handling, req. 2.4)
+7. **Create Record** — creates `Service_Appointment__c` with `Status__c = 'New'`
+8. **Success Screen** — confirms creation with customer name
+
+---
+
+### After-Save Flow: `Update_Active_Appointments_Count`
+**Type:** Record-Triggered (After Save)  
+**Object:** `Service_Appointment__c`  
+**Trigger:** Create or Update, when `Status__c` or `Customer__c` changes  
+**Purpose:** Maintains `Active_Appointments__c` counter on the related Contact.
+
+**Logic:**  
+Get count of appointments for this Contact where `Status__c = 'New'` → Update `Contact.Active_Appointments__c`.
+
+**Custom Field Required:** `Contact.Active_Appointments__c` (Number) — created in `objects/Contact/fields/`.
+
+---
+
 ## 2.3. Asynchronous Processes
+
 
 ### Batch Apex: `AppointmentReminderBatch`
 **Purpose:** Sends email reminders to customers for all `Service_Appointment__c` records scheduled for the next day.

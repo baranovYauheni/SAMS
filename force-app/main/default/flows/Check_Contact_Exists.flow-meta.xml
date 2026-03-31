@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <description>Subflow: checks whether a Contact with the given Id exists. Returns contactExists (Boolean) and contactName (Text).</description>
+    <interviewLabel>Check Contact Exists {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Check Contact Exists</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <status>Active</status>
+
+    <!-- Input variable: Contact Id to look up -->
+    <variables>
+        <name>contactId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <!-- Output: whether contact was found -->
+    <variables>
+        <name>contactExists</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+
+    <!-- Output: contact's full name -->
+    <variables>
+        <name>contactName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+
+    <!-- Get Contact record by Id -->
+    <recordLookups>
+        <name>Get_Contact</name>
+        <label>Get Contact</label>
+        <locationX>176</locationX>
+        <locationY>134</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Set_Output_Variables</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Set_Not_Found</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>contactId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Contact</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+
+    <!-- Set outputs when contact found -->
+    <assignments>
+        <name>Set_Output_Variables</name>
+        <label>Set Output Variables</label>
+        <locationX>176</locationX>
+        <locationY>254</locationY>
+        <assignmentItems>
+            <assignToReference>contactExists</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>contactName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Contact.Name</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <!-- Set outputs when contact NOT found -->
+    <assignments>
+        <name>Set_Not_Found</name>
+        <label>Set Not Found</label>
+        <locationX>396</locationX>
+        <locationY>254</locationY>
+        <assignmentItems>
+            <assignToReference>contactExists</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Contact</targetReference>
+        </connector>
+    </start>
+</Flow>
