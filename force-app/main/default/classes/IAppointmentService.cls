@@ -3,13 +3,10 @@
  *
  * SOLID — Interface Segregation Principle (I):
  *   Defines the contract for all appointment business operations.
- *   Controllers and trigger handlers depend on this interface, not on concrete classes.
  *
  * SOLID — Dependency Inversion Principle (D):
- *   High-level modules (AgentScheduleController, CustomerAppointmentController,
- *   ServiceAppointmentTriggerHandler) depend on this abstraction.
- *   Concrete implementation (AppointmentService) can be swapped without
- *   changing any caller — e.g. for mocking in unit tests.
+ *   Controllers and trigger handlers depend on this abstraction,
+ *   not on the concrete AppointmentService class.
  */
 public interface IAppointmentService {
 
@@ -29,11 +26,8 @@ public interface IAppointmentService {
 
     void cancelAppointments(List<Id> appointmentIds);
 
-    /**
-     * Validates that no two active appointments for the same agent
-     * overlap at the same date/time. Adds field-level errors for violations.
-     * Called from ServiceAppointmentTriggerHandler on before insert and before update.
-     */
+    // Validates no two active appointments for the same agent share the same date/time.
+    // Adds a field-level error on Appointment_Date_Time__c for each conflict.
     void validateNoDoubleBooking(
         List<Service_Appointment__c> newRecords,
         Map<Id, Service_Appointment__c> oldMap

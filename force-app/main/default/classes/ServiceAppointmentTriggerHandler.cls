@@ -8,21 +8,17 @@
  * SOLID — Dependency Inversion Principle (D):
  *   Depends on IAppointmentService and IEventPublisher abstractions,
  *   not on AppointmentService or EventBus directly.
- *   This allows injecting mocks in unit tests.
  *
  * SOLID — Liskov Substitution Principle (L):
- *   Extends BaseTriggerHandler and overrides only the needed hooks,
- *   without breaking the execute() contract.
+ *   Extends BaseTriggerHandler and overrides only the needed hooks.
  */
 public with sharing class ServiceAppointmentTriggerHandler extends BaseTriggerHandler {
 
-    // D — Dependency Inversion: fields reference interfaces (abstractions)
+    // D — Dependency Inversion: fields reference interfaces, not concrete classes
     private IEventPublisher eventPublisher;
     private IAppointmentService appointmentService;
 
-    /**
-     * Dependency Injection constructor — used in unit tests to inject mocks.
-     */
+    // DI constructor — used in unit tests to inject mocks
     public ServiceAppointmentTriggerHandler(
         IEventPublisher eventPublisher,
         IAppointmentService appointmentService
@@ -31,19 +27,11 @@ public with sharing class ServiceAppointmentTriggerHandler extends BaseTriggerHa
         this.appointmentService = appointmentService;
     }
 
-    /**
-     * Default constructor — wires concrete implementations for production use.
-     * O — Open/Closed: to switch publisher or service, no existing code changes;
-     *     just pass a different implementation to the DI constructor.
-     */
+    // O — Open/Closed: swap publisher or service via DI without changing this class
     public ServiceAppointmentTriggerHandler() {
         this(new PlatformEventPublisher(), new AppointmentService());
     }
 
-    /**
-     * Before Insert: prevent double booking for new appointments.
-     * Requirement 2.6: Trigger prevents double booking.
-     */
     protected override void onBeforeInsert(List<SObject> newRecords) {
         appointmentService.validateNoDoubleBooking(
             (List<Service_Appointment__c>) newRecords,
@@ -51,9 +39,6 @@ public with sharing class ServiceAppointmentTriggerHandler extends BaseTriggerHa
         );
     }
 
-    /**
-     * Before Update: prevent double booking when agent or time changes.
-     */
     protected override void onBeforeUpdate(List<SObject> newRecords, Map<Id, SObject> oldMap) {
         appointmentService.validateNoDoubleBooking(
             (List<Service_Appointment__c>) newRecords,
@@ -61,10 +46,6 @@ public with sharing class ServiceAppointmentTriggerHandler extends BaseTriggerHa
         );
     }
 
-    /**
-     * After Update: publish Platform Event when Status__c changes.
-     * Requirement 2.3: Platform Event published on status change.
-     */
     protected override void onAfterUpdate(List<SObject> newRecords, Map<Id, SObject> oldMap) {
         List<Change_Service_Appointment__e> events = new List<Change_Service_Appointment__e>();
 
@@ -81,7 +62,6 @@ public with sharing class ServiceAppointmentTriggerHandler extends BaseTriggerHa
             }
         }
 
-        // D — Dependency Inversion: call through abstraction, not EventBus directly
         eventPublisher.publish(events);
     }
 }

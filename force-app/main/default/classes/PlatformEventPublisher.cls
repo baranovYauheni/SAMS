@@ -5,14 +5,11 @@
  *   Responsible only for wrapping EventBus.publish() calls.
  *
  * SOLID — Open/Closed Principle (O):
- *   Adding a new notification channel (e.g. EmailEventPublisher) means
- *   creating a new class that implements IEventPublisher — no existing
- *   class needs to change.
+ *   Adding a new notification channel means creating a new class that
+ *   implements IEventPublisher — no existing class needs to change.
  *
  * SOLID — Liskov Substitution Principle (L):
  *   Can replace any IEventPublisher reference transparently.
- *
- * Used by: ServiceAppointmentTriggerHandler (injected via constructor)
  */
 public with sharing class PlatformEventPublisher implements IEventPublisher {
 

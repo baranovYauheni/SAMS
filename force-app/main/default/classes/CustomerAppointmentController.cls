@@ -8,8 +8,6 @@
  * SOLID — Dependency Inversion Principle (D):
  *   Depends on IAppointmentService abstraction, not on AppointmentService directly.
  *   @TestVisible allows injecting a mock in unit tests.
- *
- * Security (Requirement 2.8): with sharing enforces record-level access.
  */
 public with sharing class CustomerAppointmentController {
 

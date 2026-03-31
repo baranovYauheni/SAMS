@@ -1,36 +1,17 @@
 /**
- * AppointmentReminderBatch
+ * AppointmentReminderBatch — Batch Apex for next-day appointment email reminders.
  *
- * Requirement 2.3 — Batch Apex:
- *   Sends email reminders to customers for all Service_Appointment__c records
- *   scheduled for tomorrow with status 'New' or 'Confirmed'.
+ * SOLID — Single Responsibility Principle (S):
+ *   Responsible only for querying next-day appointments and sending reminder emails.
  *
- * SOLID — Single Responsibility (S):
- *   This class is only responsible for querying next-day appointments
- *   and sending reminder emails. Notification logic is isolated here.
- *
- * Database.Stateful:
- *   Used to accumulate error count across batches for final reporting.
- *
- * Bulk Safety (Requirement 2.7):
- *   Processes records in configurable batch sizes (default 200).
- *   Uses Messaging.sendEmail() with a list — single call per batch chunk.
- *
- * Schedule: Run daily via AppointmentReminderScheduler.
+ * Database.Stateful: tracks emailsSent / emailsFailed counters across execute() chunks.
  */
 public with sharing class AppointmentReminderBatch
     implements Database.Batchable<SObject>, Database.Stateful {
 
-    // Stateful counter — survives across execute() calls
-    private Integer emailsSent  = 0;
+    private Integer emailsSent   = 0;
     private Integer emailsFailed = 0;
 
-    // ─── Database.Batchable ──────────────────────────────────────────────────
-
-    /**
-     * start() — defines the scope: all appointments scheduled for tomorrow
-     * that are not yet cancelled or completed.
-     */
     public Database.QueryLocator start(Database.BatchableContext bc) {
         DateTime tomorrowStart = DateTime.newInstance(Date.today().addDays(1), Time.newInstance(0,  0, 0, 0));
         DateTime tomorrowEnd   = DateTime.newInstance(Date.today().addDays(1), Time.newInstance(23, 59, 59, 999));
@@ -54,15 +35,10 @@ public with sharing class AppointmentReminderBatch
         ]);
     }
 
-    /**
-     * execute() — sends reminder emails for each chunk of appointments.
-     * One Messaging.sendEmail() call per batch chunk — bulk safe.
-     */
     public void execute(Database.BatchableContext bc, List<Service_Appointment__c> scope) {
         List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
 
         for (Service_Appointment__c appt : scope) {
-            // Skip if no email on the contact
             if (String.isBlank(appt.Customer__r.Email)) continue;
 
             Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
@@ -70,7 +46,6 @@ public with sharing class AppointmentReminderBatch
             email.setSubject('Reminder: Your appointment is tomorrow');
             email.setPlainTextBody(buildEmailBody(appt));
             email.setSaveAsActivity(false);
-
             emails.add(email);
         }
 
@@ -92,16 +67,9 @@ public with sharing class AppointmentReminderBatch
         }
     }
 
-    /**
-     * finish() — logs summary of the batch run.
-     */
     public void finish(Database.BatchableContext bc) {
-        System.debug(
-            'AppointmentReminderBatch complete. ' +
-            'Sent: ' + emailsSent + ' | Failed: ' + emailsFailed
-        );
+        System.debug('AppointmentReminderBatch complete. Sent: ' + emailsSent + ' | Failed: ' + emailsFailed);
 
-        // Optional: send a summary email to admin
         if (emailsFailed > 0) {
             try {
                 Messaging.SingleEmailMessage adminAlert = new Messaging.SingleEmailMessage();
@@ -120,8 +88,6 @@ public with sharing class AppointmentReminderBatch
             }
         }
     }
-
-    // ─── Helper ──────────────────────────────────────────────────────────────
 
     private String buildEmailBody(Service_Appointment__c appt) {
         String agentName = appt.Service_Agent__r != null ? appt.Service_Agent__r.Name : 'your assigned agent';

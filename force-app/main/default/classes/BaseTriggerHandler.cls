@@ -10,44 +10,23 @@
  *   Closed for modification: the execute() dispatch logic never needs to change.
  *
  * SOLID — Liskov Substitution Principle (L):
- *   Any subclass can replace BaseTriggerHandler in a trigger call without
- *   breaking the execute() contract.
+ *   Any subclass can replace BaseTriggerHandler without breaking the execute() contract.
  *
- * Design Pattern: Template Method
- *   execute() defines the algorithm skeleton; subclasses fill in the steps
- *   by overriding the virtual protected methods.
- *
- * Usage in triggers:
- *   new MyHandler().execute();
+ * Design Pattern: Template Method —
+ *   execute() defines the algorithm skeleton; subclasses fill in specific steps.
  */
 public abstract class BaseTriggerHandler {
 
-    /**
-     * Template Method — dispatch trigger context to the right hook.
-     * Call this from every trigger: new MyHandler().execute();
-     */
     public void execute() {
         if (Trigger.isBefore) {
-            if (Trigger.isInsert) {
-                onBeforeInsert(Trigger.new);
-            }
-            if (Trigger.isUpdate) {
-                onBeforeUpdate(Trigger.new, Trigger.oldMap);
-            }
+            if (Trigger.isInsert) onBeforeInsert(Trigger.new);
+            if (Trigger.isUpdate) onBeforeUpdate(Trigger.new, Trigger.oldMap);
         }
-
         if (Trigger.isAfter) {
-            if (Trigger.isInsert) {
-                onAfterInsert(Trigger.new);
-            }
-            if (Trigger.isUpdate) {
-                onAfterUpdate(Trigger.new, Trigger.oldMap);
-            }
+            if (Trigger.isInsert) onAfterInsert(Trigger.new);
+            if (Trigger.isUpdate) onAfterUpdate(Trigger.new, Trigger.oldMap);
         }
     }
-
-    // ─── Overridable hooks ──────────────────────────────────────────────────
-    // Subclasses override only what they need. Default implementations are no-ops.
 
     protected virtual void onBeforeInsert(List<SObject> newRecords) {}
     protected virtual void onBeforeUpdate(List<SObject> newRecords, Map<Id, SObject> oldMap) {}

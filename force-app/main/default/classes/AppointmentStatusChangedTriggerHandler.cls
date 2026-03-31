@@ -2,15 +2,11 @@
  * AppointmentStatusChangedTriggerHandler — extends BaseTriggerHandler.
  *
  * SOLID — Single Responsibility Principle (S):
- *   Responsible only for converting incoming Platform Event data
+ *   Responsible only for converting Platform Event data
  *   into Appointment_Status_Log__c records.
  *
  * SOLID — Liskov Substitution Principle (L):
- *   Correctly extends BaseTriggerHandler by overriding only onAfterInsert,
- *   without altering the execute() contract.
- *
- * Bulk Safety (Requirement 2.7):
- *   Collects all log records into a single List before one insert DML call.
+ *   Correctly extends BaseTriggerHandler by overriding only onAfterInsert.
  */
 public with sharing class AppointmentStatusChangedTriggerHandler extends BaseTriggerHandler {
 
