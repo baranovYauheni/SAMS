@@ -75,13 +75,13 @@
         <inputAssignments>
             <field>Customer__c</field>
             <value>
-                <elementReference>fld_Customer</elementReference>
+                <elementReference>fld_Customer.recordId</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Service_Agent__c</field>
             <value>
-                <elementReference>fld_Agent</elementReference>
+                <elementReference>fld_Agent.recordId</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -119,7 +119,7 @@
             <field>Service_Agent__c</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>fld_Agent</elementReference>
+                <elementReference>fld_Agent.recordId</elementReference>
             </value>
         </filters>
         <filters>
@@ -164,17 +164,67 @@
         </connector>
         <fields>
             <name>fld_Customer</name>
-            <dataType>String</dataType>
-            <fieldText>Customer (Contact ID)</fieldText>
-            <fieldType>InputField</fieldType>
+            <extensionName>flowruntime:lookup</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>fieldApiName</name>
+                <value>
+                    <stringValue>Customer__c</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Customer</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>objectApiName</name>
+                <value>
+                    <stringValue>Service_Appointment__c</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>required</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
         </fields>
         <fields>
             <name>fld_Agent</name>
-            <dataType>String</dataType>
-            <fieldText>Service Agent (User ID)</fieldText>
-            <fieldType>InputField</fieldType>
+            <extensionName>flowruntime:lookup</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>fieldApiName</name>
+                <value>
+                    <stringValue>Service_Agent__c</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Service Agent</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>objectApiName</name>
+                <value>
+                    <stringValue>Service_Appointment__c</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>required</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
         </fields>
         <fields>
             <name>fld_DateTime</name>
@@ -264,7 +314,7 @@
         <inputAssignments>
             <name>contactId</name>
             <value>
-                <elementReference>fld_Customer</elementReference>
+                <elementReference>fld_Customer.recordId</elementReference>
             </value>
         </inputAssignments>
         <outputAssignments>
