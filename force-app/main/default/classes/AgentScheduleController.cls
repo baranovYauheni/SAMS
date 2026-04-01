@@ -7,7 +7,6 @@ public with sharing class AgentScheduleController {
             FROM User 
             WHERE IsActive = true 
             AND UserRole.Name = 'Service Agent'
-            WITH SECURITY_ENFORCED
             ORDER BY Name
             LIMIT 100
         ];
